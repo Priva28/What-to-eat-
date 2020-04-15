@@ -14,6 +14,7 @@ These meals are stored persistantly in the CoreData model which means that I can
 At the top of the screen you can select a random meal and it will display a random one to you.
 
 **TODO**
-- [ ] Make images not ugly
+- [x] Make images not ugly
 - [ ] Choose random based on filter eg. time to prepare and time to cook variables as well as breakfast lunch or dinner.
 - [ ] What if you say have a meal that you've already prepared but is frozen and just need to cook. You should be able to add/subtract how many meals you have available but to not prepare.
+- [ ] Make the detail view actually look nice with like an image at the top and some nice designs and stuff, also some controls for how many meals you have available and stuff
