@@ -46,10 +46,9 @@ struct ContentView: View {
                         if self.foods[self.randomSelected].image != nil {
                             Image(uiImage: self.foods[self.randomSelected].image! as! UIImage)
                                 .resizable()
-                                .frame(maxWidth: 200, maxHeight: 200)
-                                .padding()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 300, height: 250)
                                 .cornerRadius(20)
-                                .scaledToFit()
                         }
                     }
                 }
@@ -69,12 +68,11 @@ struct ContentView: View {
                                 if food.image != nil {
                                     Image(uiImage: food.image! as! UIImage)
                                         .resizable()
-                                        .frame(maxWidth: 25, maxHeight: 25)
-                                        .padding()
-                                        .cornerRadius(20)
-                                        .scaledToFill()
+                                        .aspectRatio(contentMode: .fill)
+                                        .frame(width: 30, height: 30)
+                                        .cornerRadius(2)
                                 }
-                            }.frame(height: 30)
+                            }.frame(height: 35)
                         }
                     }
                     .onDelete(perform: removeFood)
@@ -151,7 +149,7 @@ struct FoodForm: View {
     private var timeOptions = ["Less than 5 mins", "5-10 mins", "10-15 mins", "15-20 mins", "20-25 mins", "25-30 mins", "30-35 mins", "35-40 mins", "40-45 mins", "45-50 mins", "50-55 mins", "55-60 mins", "1-1.5 hours", "1.5-2hours", "More than 2 hours"]
     
     var body: some View {
-        NavigationView {
+        return NavigationView {
             GeometryReader { geometry in
                 Form {
                     TextField("Name: ", text: self.$name)
@@ -193,9 +191,9 @@ struct FoodForm: View {
                     if self.image != nil {
                         Image(uiImage: self.image!)
                             .resizable()
-                            .padding()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: geometry.size.width-30, height: geometry.size.width-30)
                             .cornerRadius(20)
-                            .scaledToFit()
                     }
                     Section {
                         Button("Save") {
@@ -286,10 +284,11 @@ struct FoodForm: View {
                             newItem.timeToPrepare = self.timeToPrepare
                             newItem.timeToCook = self.timeToCook
                             try? self.moc.save()
+                            self.onDismiss()
                         }
                     }
                 }
-            }.navigationBarTitle("Add new food", displayMode: .large)
+            }.navigationBarTitle("Add new food")
         }
     }
 }
@@ -326,14 +325,27 @@ class ImagePickerCordinator : NSObject, UINavigationControllerDelegate, UIImageP
     
     init(isShown : Binding<Bool>, image: Binding<UIImage?>) {
         _isShown = isShown
-        _image   = image
+        _image = image
     }
     
     //Selected Image
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        let uiImage = info[UIImagePickerController.InfoKey.originalImage] as! UIImage
-        image = uiImage
+        
+        guard let uiImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage else { return }
+    
+        image = resizeImage(image: uiImage)
         isShown = false
+    }
+    
+    func resizeImage(image: UIImage) -> UIImage {
+        let scale = image.size.height / image.size.width
+        let newHeight = image.size.height * scale
+        UIGraphicsBeginImageContext(CGSize(width: image.size.height, height: newHeight))
+        image.draw(in: CGRect(x: 0, y: 0, width: image.size.height, height: newHeight))
+        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+
+        return newImage!
     }
     
     //Image selection got cancel
